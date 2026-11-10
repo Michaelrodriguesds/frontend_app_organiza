@@ -120,7 +120,12 @@ class _Painel extends StatelessWidget {
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.circle, size: 9, color: corStatus),
               const SizedBox(width: 6),
-              Text('Situação: $rotuloStatus', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12.5)),
+              // Flexible: se o espaço for pequeno, o texto encurta em vez de estourar a tela.
+              Flexible(
+                child: Text('Situação: $rotuloStatus',
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12.5)),
+              ),
             ]),
           ),
           const Divider(color: Color(0x40FFFFFF), height: 28),

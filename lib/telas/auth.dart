@@ -3,7 +3,6 @@
 // =====================================================================
 import 'package:flutter/material.dart';
 import '../api.dart';
-import '../componentes.dart';
 import '../tema.dart';
 import 'principal.dart';
 
