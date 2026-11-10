@@ -1,0 +1,18 @@
+# =====================================================================
+# netlify.toml — diz ao Netlify como compilar o app Flutter sozinho.
+# Fica na RAIZ do projeto (do lado do pubspec.yaml).
+# A cada "git push", o Netlify baixa o Flutter, compila e publica.
+# =====================================================================
+
+[build]
+  # Tudo numa linha só (evita problema de quebra de linha do Windows):
+  # 1) baixa o Flutter  2) liga o suporte web  3) compila apontando para a API do Render
+  command = "git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter && $HOME/flutter/bin/flutter config --enable-web && $HOME/flutter/bin/flutter build web --release --dart-define=API=https://backend-app-organiza.onrender.com"
+  # Pasta que o Netlify publica depois do build:
+  publish = "build/web"
+
+# Qualquer endereço volta para o app (evita 404 ao atualizar a página).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
