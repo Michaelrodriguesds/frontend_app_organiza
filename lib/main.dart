@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'api.dart';
+import 'digital.dart';
 import 'tema.dart';
 import 'telas/auth.dart';
 import 'telas/principal.dart';
@@ -57,6 +58,10 @@ class _SplashState extends State<Splash> {
         // 402 = teste acabou | 403 = conta bloqueada | outros = volta ao login
         if (e.status == 402 || e.status == 403) destino = TelaBloqueio(mensagem: e.mensagem);
       }
+    }
+    // Se há login guardado e a digital está ativada, pede a digital antes de entrar.
+    if (destino is Principal && await Digital.ativa() && await Digital.suportado()) {
+      destino = TelaDesbloqueio(destino: destino);
     }
     await Future.delayed(const Duration(milliseconds: 500)); // só para a splash aparecer
     if (!mounted) return;

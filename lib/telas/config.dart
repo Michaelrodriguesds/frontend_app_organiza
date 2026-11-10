@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../api.dart';
 import '../componentes.dart';
+import '../digital.dart';
 import '../formulario.dart';
 import '../tema.dart';
 import 'auth.dart';
@@ -68,7 +69,7 @@ class TelaConfig extends StatelessWidget {
               ]);
               if (r != null && c.mounted) await tentar(c, () => Api.put('/eu/senha', r), ok: 'Senha alterada!');
             }),
-            _opcao(c, Icons.fingerprint, 'Login por digital', 'Disponível na versão Android do app', null),
+            _CartaoDigital(nome: '${u['nome']}'), // ativar/desativar a digital
             _opcao(c, Icons.download_outlined, 'Exportar meus dados', 'Copia uma cópia de segurança (JSON) para a área de transferência', () async {
               try {
                 final d = await Api.get('/exportar');
@@ -118,4 +119,71 @@ class TelaConfig extends StatelessWidget {
           ),
         ]),
       );
+}
+
+/// Cartão "Login por digital": liga e desliga o desbloqueio por digital neste aparelho.
+class _CartaoDigital extends StatefulWidget {
+  final String nome;
+  const _CartaoDigital({required this.nome});
+  @override
+  State<_CartaoDigital> createState() => _CartaoDigitalState();
+}
+
+class _CartaoDigitalState extends State<_CartaoDigital> {
+  bool _suportado = false, _ativa = false, _pronto = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ler();
+  }
+
+  Future<void> _ler() async {
+    final sup = await Digital.suportado();
+    final at = await Digital.ativa();
+    if (mounted) setState(() { _suportado = sup; _ativa = at; _pronto = true; });
+  }
+
+  Future<void> _alternar() async {
+    if (!_suportado) {
+      aviso(context, 'Este aparelho/navegador não tem digital disponível (ou a tela não está em HTTPS).', erro: true);
+      return;
+    }
+    if (_ativa) {
+      if (!await confirmar(context, 'Desativar digital?', 'O app voltará a abrir direto, sem pedir a digital.', botao: 'Desativar')) return;
+      await Digital.desativar();
+      if (mounted) { setState(() => _ativa = false); aviso(context, 'Digital desativada.'); }
+      return;
+    }
+    aviso(context, 'Toque no leitor de digital quando o aparelho pedir…');
+    final ok = await Digital.ativar(widget.nome);
+    if (!mounted) return;
+    setState(() => _ativa = ok);
+    aviso(context, ok ? 'Digital ativada! Na próxima vez que abrir o app ela será pedida.' : 'Não foi possível ativar a digital. Tente de novo.', erro: !ok);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sub = !_pronto
+        ? 'Verificando o aparelho…'
+        : !_suportado
+            ? 'Indisponível neste aparelho/navegador'
+            : _ativa
+                ? 'Ativada: o app pede a digital ao abrir'
+                : 'Toque para ativar o desbloqueio por digital';
+    return Cartao(
+      aoToque: _pronto ? _alternar : null,
+      filho: Row(children: [
+        const Icon(Icons.fingerprint, color: Cores.verde),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Login por digital', style: TextStyle(fontWeight: FontWeight.w600, color: Cores.texto)),
+            Text(sub, style: const TextStyle(color: Cores.textoSuave, fontSize: 12.5)),
+          ]),
+        ),
+        if (_pronto && _suportado) Switch(value: _ativa, onChanged: (_) => _alternar(), activeThumbColor: Cores.verde),
+      ]),
+    );
+  }
 }

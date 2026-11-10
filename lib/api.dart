@@ -16,7 +16,8 @@ const String apiBase = String.fromEnvironment('API', defaultValue: 'http://local
 class ApiErro implements Exception {
   final String mensagem;
   final int status; // 0 = não conseguiu falar com o servidor
-  ApiErro(this.mensagem, this.status);
+  final String? detalhe; // qual chamada falhou (ex.: "PUT /lembretes/123") — ajuda a achar problemas
+  ApiErro(this.mensagem, this.status, {this.detalhe});
   @override
   String toString() => mensagem;
 }
@@ -45,10 +46,15 @@ class Api {
     usuario = null;
     final p = await SharedPreferences.getInstance();
     await p.remove('token');
+    await p.remove('digital_cred'); // sem login guardado, a digital também é desativada
   }
 
   /// Faz a chamada HTTP e devolve o JSON já decodificado.
   static Future<dynamic> _req(String metodo, String rota, [Object? corpo]) async {
+    // Proteção: se algum id veio vazio, o endereço teria "/null". Melhor avisar do que enviar.
+    if (RegExp(r'/(null|undefined)(/|\?|$)').hasMatch(rota)) {
+      throw ApiErro('Este item não tem identificador. Volte, atualize a tela e tente de novo.', 0, detalhe: '$metodo $rota');
+    }
     final uri = Uri.parse('$apiBase/api$rota');
     final cabecalhos = <String, String>{
       'Content-Type': 'application/json',
@@ -84,7 +90,7 @@ class Api {
 
     if (r.statusCode == 401 && _token != null) await sair(); // sessão inválida
     final msg = (dados is Map && dados['erro'] != null) ? dados['erro'].toString() : 'Erro ${r.statusCode}';
-    throw ApiErro(msg, r.statusCode);
+    throw ApiErro(msg, r.statusCode, detalhe: '$metodo $rota');
   }
 
   // ---- atalhos usados pelas telas ----

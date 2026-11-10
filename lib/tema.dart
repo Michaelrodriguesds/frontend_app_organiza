@@ -96,5 +96,7 @@ void aviso(BuildContext context, String msg, {bool erro = false}) {
     content: Text(msg),
     backgroundColor: erro ? Cores.vermelho : Cores.texto,
     behavior: SnackBarBehavior.floating,
+    duration: Duration(seconds: erro ? 10 : 4), // erro fica mais tempo para dar para ler
+    showCloseIcon: erro,
   ));
 }

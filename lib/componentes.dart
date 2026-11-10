@@ -111,7 +111,11 @@ Future<bool> tentar(BuildContext context, Future<dynamic> Function() acao, {Stri
     if (ok != null && context.mounted) aviso(context, ok);
     return true;
   } on ApiErro catch (e) {
-    if (context.mounted && !tratarErroSessao(context, e)) aviso(context, e.mensagem, erro: true);
+    if (context.mounted && !tratarErroSessao(context, e)) {
+      // Em erros de dados (400/404/500) mostra também qual chamada falhou: facilita achar o problema.
+      final extra = (e.detalhe != null && e.status >= 400) ? '\n(${e.detalhe})' : '';
+      aviso(context, '${e.mensagem}$extra', erro: true);
+    }
     return false;
   }
 }

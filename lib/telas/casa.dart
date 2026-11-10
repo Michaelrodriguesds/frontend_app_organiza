@@ -101,7 +101,9 @@ class _TelaCasaState extends State<TelaCasa> {
       );
 
   // ---------- ESTOQUE ----------
+  // key: cada aba tem a sua chave, senão o Flutter reaproveita os dados da outra aba
   Widget _estoque() => Carregador<List<Map<String, dynamic>>>(
+        key: const ValueKey('aba-estoque'),
         carregar: () => Api.lista('estoque'),
         construir: (c, itens) => listaPadrao([
           _abas(),
@@ -198,6 +200,7 @@ class _TelaCasaState extends State<TelaCasa> {
 
   // ---------- DESPESAS DA CASA (lançamentos da categoria "casa") ----------
   Widget _despesas() => Carregador<List<Map<String, dynamic>>>(
+        key: const ValueKey('aba-despesas'),
         carregar: () async => (await Api.lista('movimentacoes')).where((m) => m['categoria'] == 'casa' && m['pago'] == true).toList(),
         construir: (c, lista) {
           final total = lista.fold<double>(0, (s, m) => s + (m['valor'] as num).toDouble());

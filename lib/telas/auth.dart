@@ -3,6 +3,7 @@
 // =====================================================================
 import 'package:flutter/material.dart';
 import '../api.dart';
+import '../digital.dart';
 import '../tema.dart';
 import 'principal.dart';
 
@@ -257,6 +258,62 @@ class TelaBloqueio extends StatelessWidget {
               Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const TelaLogin()), (_) => false);
             }
           }),
+        ]),
+      );
+}
+
+// ---------------------------------------------------------------------
+// DESBLOQUEIO POR DIGITAL: aparece ao abrir o app quando a digital está ativada.
+// ---------------------------------------------------------------------
+class TelaDesbloqueio extends StatefulWidget {
+  final Widget destino; // para onde ir depois de confirmar a digital
+  const TelaDesbloqueio({super.key, required this.destino});
+  @override
+  State<TelaDesbloqueio> createState() => _TelaDesbloqueioState();
+}
+
+class _TelaDesbloqueioState extends State<TelaDesbloqueio> {
+  bool _pedindo = false;
+  String? _msg;
+
+  @override
+  void initState() {
+    super.initState();
+    // Tenta pedir a digital sozinho; se o navegador não deixar, o botão faz o mesmo.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _pedir());
+  }
+
+  Future<void> _pedir() async {
+    if (_pedindo) return;
+    setState(() { _pedindo = true; _msg = null; });
+    final ok = await Digital.desbloquear();
+    if (!mounted) return;
+    if (ok) {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => widget.destino));
+    } else {
+      setState(() { _pedindo = false; _msg = 'Digital não confirmada. Toque no botão para tentar de novo.'; });
+    }
+  }
+
+  Future<void> _usarSenha() async {
+    await Api.sair(); // apaga o login guardado (e a digital)
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const TelaLogin()), (_) => false);
+  }
+
+  @override
+  Widget build(BuildContext context) => _Moldura(
+        filho: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const Icon(Icons.fingerprint, size: 84, color: Cores.verde),
+          const SizedBox(height: 12),
+          const Text('Organiza+', textAlign: TextAlign.center, style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 6),
+          const Text('Confirme sua digital para entrar', textAlign: TextAlign.center, style: TextStyle(color: Cores.textoSuave)),
+          const SizedBox(height: 28),
+          _botao('Usar digital', _pedir, carregando: _pedindo),
+          _erro(_msg),
+          const SizedBox(height: 10),
+          TextButton(onPressed: _usarSenha, child: const Text('Entrar com e-mail e senha')),
         ]),
       );
 }

@@ -72,7 +72,9 @@ class _TelaAgendaState extends State<TelaAgenda> {
     }
   }
 
+  // key: cada aba tem a sua chave, senão o Flutter reaproveita os dados da outra aba
   Widget _agenda() => Carregador<List<Map<String, dynamic>>>(
+        key: const ValueKey('aba-agenda'),
         carregar: () => Api.lista('agenda?dias=90'),
         construir: (c, itens) {
           final atrasados = itens.where((i) => (i['dias'] as num) < 0).toList();
@@ -107,6 +109,7 @@ class _TelaAgendaState extends State<TelaAgenda> {
       );
 
   Widget _lembretes() => Carregador<List<Map<String, dynamic>>>(
+        key: const ValueKey('aba-lembretes'),
         carregar: () => Api.lista('lembretes'),
         construir: (c, lista) => listaPadrao([
           _abas(),
