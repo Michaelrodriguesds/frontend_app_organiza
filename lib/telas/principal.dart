@@ -26,7 +26,6 @@ import 'inicio.dart';
 import 'lixeira.dart';
 import 'metas.dart';
 import 'notas.dart';
-import 'pix.dart';
 import 'relatorios.dart';
 import 'veiculos.dart';
 
@@ -105,7 +104,6 @@ class TelaMais extends StatelessWidget {
     final itens = <(String, String, IconData, Widget)>[
       ('Corridas (app)', 'Melhores dias, meses e feriados para rodar', Icons.local_taxi_outlined, const TelaCorridas()),
       ('Assistente', 'Previsões e sugestões com base nos seus registros', Icons.auto_awesome_outlined, const TelaAssistente()),
-      ('Pix', 'Receber (QR Code) e preparar envio', Icons.pix, const TelaPix()),
       ('Extrato', 'Entradas e saídas por mês · importar do banco', Icons.receipt_long_outlined, const TelaExtrato()),
       ('Contas do mês', 'Aluguel, luz, internet: lança sozinho e diz quanto guardar por dia', Icons.event_repeat_outlined, const TelaRecorrentes()),
       ('Plano das metas', 'Quanto guardar hoje, reservas de gás/água e chance no prazo', Icons.track_changes_outlined, const TelaPlanoMetas()),

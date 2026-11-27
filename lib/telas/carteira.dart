@@ -1,6 +1,6 @@
 // =====================================================================
 // carteira.dart — a tela inicial em formato de "carteira digital":
-// saldo (com botão de ocultar), atalhos (Pix, adicionar, extrato), cartão
+// saldo (com botão de ocultar), atalhos (extrato, guardado, anotações), cartão
 // da conta, gráfico dos últimos 6 meses, gastos por categoria e movimentações.
 //
 // ATENÇÃO: o saldo é calculado com o que VOCÊ registrou (ou importou do
@@ -15,10 +15,9 @@ import '../tema.dart';
 import 'assistente.dart';
 import 'busca.dart';
 import 'extrato.dart';
-import 'financas.dart';
 import 'inicio.dart';
 import 'metas.dart';
-import 'pix.dart';
+import 'notas.dart';
 import 'registro_rapido.dart';
 
 const _verdeEscuro = Color(0xFF123530);
@@ -59,18 +58,6 @@ class _TelaCarteiraState extends State<TelaCarteira> {
   }
 
   void _abrir(Widget tela) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => tela));
-
-  Future<void> _adicionar() async {
-    final o = await escolher(context, 'Adicionar dinheiro', {
-      'entrada': 'Registrar uma entrada (salário, venda…)',
-      'importar': 'Importar extrato do banco',
-      'pix': 'Receber por Pix',
-    });
-    if (o == null || !mounted) return;
-    if (o == 'entrada') await novoLancamento(context, tipo: 'receita');
-    if (o == 'importar') _abrir(const TelaImportar());
-    if (o == 'pix') _abrir(const TelaPix());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -244,11 +231,9 @@ class _TelaCarteiraState extends State<TelaCarteira> {
           ),
         );
     return Row(children: [
-      b(Icons.send_outlined, 'Enviar Pix', () => _abrir(const TelaPixEnviar())),
-      b(Icons.qr_code_2, 'Receber Pix', () => _abrir(const TelaPixReceber())),
-      b(Icons.add_card_outlined, 'Adicionar', _adicionar),
       b(Icons.receipt_long_outlined, 'Extrato', () => _abrir(const TelaExtrato())),
       b(Icons.savings_outlined, 'Guardado', () => _abrir(const TelaMetas())),
+      b(Icons.sticky_note_2_outlined, 'Anotações', () => _abrir(const TelaNotas())),
     ]);
   }
 
