@@ -116,7 +116,8 @@ class _TelaExtratoState extends State<TelaExtrato> {
 
   @override
   Widget build(BuildContext context) {
-    final rotuloMes = toBeginningOfSentenceCase(DateFormat('MMMM yyyy', 'pt_BR').format(_mes)) ?? '';
+    final mesTexto = DateFormat('MMMM yyyy', 'pt_BR').format(_mes);
+    final rotuloMes = mesTexto.isEmpty ? mesTexto : mesTexto[0].toUpperCase() + mesTexto.substring(1);
     final ehAtual = _mes.year == DateTime.now().year && _mes.month == DateTime.now().month;
     return Pagina(
       titulo: 'Extrato',

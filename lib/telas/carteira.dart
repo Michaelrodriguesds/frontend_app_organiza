@@ -82,7 +82,7 @@ class _TelaCarteiraState extends State<TelaCarteira> {
       acoes: [
         ValueListenableBuilder<bool>(
           valueListenable: SaldoOculto.oculto,
-          builder: (_, oc, __) => IconButton(
+          builder: (_, oc, _) => IconButton(
             icon: Icon(oc ? Icons.visibility_off_outlined : Icons.visibility_outlined),
             tooltip: oc ? 'Mostrar saldo' : 'Ocultar saldo',
             onPressed: SaldoOculto.alternar,
@@ -98,7 +98,7 @@ class _TelaCarteiraState extends State<TelaCarteira> {
         },
         construir: (c, d) => ValueListenableBuilder<bool>(
           valueListenable: SaldoOculto.oculto,
-          builder: (_, oc, __) => _corpo(c, d, oc),
+          builder: (_, oc, _) => _corpo(c, d, oc),
         ),
       ),
     );
