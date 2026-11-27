@@ -200,7 +200,8 @@ class Pagina extends StatelessWidget {
   final Widget corpo;
   final Widget? fab;
   final List<Widget>? acoes;
-  const Pagina({super.key, required this.titulo, required this.corpo, this.fab, this.acoes});
+  final double largura; // largura máxima do conteúdo (telas largas, como a carteira, usam mais)
+  const Pagina({super.key, required this.titulo, required this.corpo, this.fab, this.acoes, this.largura = 620});
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -214,7 +215,7 @@ class Pagina extends StatelessWidget {
         ),
         floatingActionButton: fab,
         // maxWidth: no computador a tela não fica esticada demais
-        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 620), child: corpo)),
+        body: Center(child: ConstrainedBox(constraints: BoxConstraints(maxWidth: largura), child: corpo)),
       );
 }
 

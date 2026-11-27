@@ -75,7 +75,7 @@ class _SplashState extends State<Splash> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text('Organiza+', style: TextStyle(color: Colors.white, fontSize: 38, fontWeight: FontWeight.w700)),
             SizedBox(height: 8),
-            Text('Casa, veículos e finanças', style: TextStyle(color: Color(0xFFB9CFC5))),
+            Text('Sua carteira pessoal', style: TextStyle(color: Color(0xFFB9CFC5))),
             SizedBox(height: 28),
             SizedBox(width: 26, height: 26, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)),
           ]),

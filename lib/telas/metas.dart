@@ -8,13 +8,14 @@ import '../api.dart';
 import '../componentes.dart';
 import '../formulario.dart';
 import '../tema.dart';
+import 'plano_metas.dart';
 
 const Map<String, String> tiposMeta = {'meta': 'Meta (guardar dinheiro)', 'compra': 'Compra / serviço futuro'};
 const Map<String, String> prioridades = {'baixa': 'Baixa', 'media': 'Média', 'alta': 'Alta'};
 
 Future<bool> editarMeta(BuildContext context, {Map<String, dynamic>? registro}) => salvarForm(
       context,
-      titulo: registro == null ? 'Nova meta' : 'Editar meta',
+      titulo: registro == null ? 'Novo objetivo' : 'Editar objetivo',
       rota: 'metas',
       registro: registro,
       campos: const [
@@ -37,6 +38,10 @@ Future<bool> registrarAporte(BuildContext context, Map<String, dynamic> meta) as
   ]);
   if (r == null || !context.mounted) return false;
   final valor = (r['valor'] as num).toDouble();
+  if (r['acao'] == 'retirar' && valor > (meta['acumulado'] as num).toDouble() + 0.005) {
+    aviso(context, 'Você só tem ${reais(meta['acumulado'])} guardado neste objetivo.', erro: true);
+    return false;
+  }
   return tentar(
     context,
     () => Api.post('/metas/${meta['_id']}/aportes', {
@@ -53,11 +58,11 @@ Future<void> aporteRapido(BuildContext context) async {
   final metas = await listaOuAviso(context, 'metas');
   if (metas == null || !context.mounted) return;
   if (metas.isEmpty) {
-    aviso(context, 'Primeiro crie uma meta.');
+    aviso(context, 'Primeiro crie um objetivo.');
     await editarMeta(context);
     return;
   }
-  final id = await escolher(context, 'Em qual meta?', {for (final m in metas) (m['_id'] as String): '${m['nome']}'});
+  final id = await escolher(context, 'Em qual objetivo?', {for (final m in metas) (m['_id'] as String): '${m['nome']}'});
   if (id == null || !context.mounted) return;
   await registrarAporte(context, metas.firstWhere((m) => m['_id'] == id));
 }
@@ -68,14 +73,30 @@ class TelaMetas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Pagina(
-      titulo: 'Metas',
-      fab: botaoMais(() => editarMeta(context), dica: 'Nova meta'),
+      titulo: 'Meu dinheiro guardado',
+      fab: botaoMais(() => editarMeta(context), dica: 'Novo objetivo'),
       corpo: Carregador<List<Map<String, dynamic>>>(
         carregar: () => Api.lista('metas'),
         construir: (c, metas) => listaPadrao([
-          const Text('Metas e compras futuras não contam como despesa: ficam separadas, como planejamento.', style: TextStyle(color: Cores.textoSuave)),
+          Cartao(
+            filho: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('Total reservado nos objetivos', style: TextStyle(color: Cores.textoSuave, fontSize: 12.5)),
+              Text(reais(metas.fold<double>(0, (s, m) => s + (m['acumulado'] as num).toDouble())),
+                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: Cores.verde)),
+            ]),
+          ),
+          OutlinedButton.icon(
+            onPressed: () => Navigator.of(c).push(MaterialPageRoute(builder: (_) => const TelaPlanoMetas())),
+            icon: const Icon(Icons.track_changes_outlined),
+            label: const Text('Ver plano: quanto guardar hoje e chance no prazo'),
+          ),
+          const SizedBox(height: 10),
+          const Aviso(
+            'É uma organização virtual dentro do app. O dinheiro NÃO é aplicado, não rende e não fica separado em nenhuma conta do banco: continua onde você o deixou.',
+            icone: Icons.info_outline,
+          ),
           const SizedBox(height: 14),
-          if (metas.isEmpty) const Vazio('Nenhuma meta ainda. Toque no + para criar.'),
+          if (metas.isEmpty) const Vazio('Nenhum objetivo ainda. Toque no + para criar.'),
           for (final m in metas)
             Cartao(
               aoToque: () => Navigator.of(c).push(MaterialPageRoute(builder: (_) => DetalheMeta(metaId: m['_id']))),

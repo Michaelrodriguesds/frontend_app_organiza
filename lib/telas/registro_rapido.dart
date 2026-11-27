@@ -8,6 +8,7 @@ import '../componentes.dart';
 import '../tema.dart';
 import 'agenda.dart';
 import 'casa.dart';
+import 'corridas.dart';
 import 'dividas.dart';
 import 'eventos.dart';
 import 'financas.dart';
@@ -19,6 +20,7 @@ Future<void> registroRapido(BuildContext context) async {
   const opcoes = {
     'despesa': 'Despesa (já paguei)',
     'receita': 'Receita (já recebi)',
+    'corrida': 'Dia de corrida (valor limpo do dia)',
     'a_pagar': 'Conta a pagar',
     'a_receber': 'A receber (ainda não recebi)',
     'servico': 'Serviço do veículo',
@@ -38,6 +40,8 @@ Future<void> registroRapido(BuildContext context) async {
     case 'a_pagar':
     case 'a_receber':
       await novoLancamento(context, tipo: o);
+    case 'corrida':
+      await registrarDiaCorrida(context);
     case 'servico':
       await _servico(context);
     case 'estoque':

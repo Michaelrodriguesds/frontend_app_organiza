@@ -50,7 +50,7 @@ class Api {
   }
 
   /// Faz a chamada HTTP e devolve o JSON já decodificado.
-  static Future<dynamic> _req(String metodo, String rota, [Object? corpo]) async {
+  static Future<dynamic> _req(String metodo, String rota, [Object? corpo, Map<String, String>? extras]) async {
     // Proteção: se algum id veio vazio, o endereço teria "/null". Melhor avisar do que enviar.
     if (RegExp(r'/(null|undefined)(/|\?|$)').hasMatch(rota)) {
       throw ApiErro('Este item não tem identificador. Volte, atualize a tela e tente de novo.', 0, detalhe: '$metodo $rota');
@@ -59,6 +59,7 @@ class Api {
     final cabecalhos = <String, String>{
       'Content-Type': 'application/json',
       if (_token != null) 'Authorization': 'Bearer $_token',
+      ...?extras,
     };
     final json = corpo == null ? null : jsonEncode(corpo);
 
@@ -95,7 +96,7 @@ class Api {
 
   // ---- atalhos usados pelas telas ----
   static Future<dynamic> get(String rota) => _req('GET', rota);
-  static Future<dynamic> post(String rota, [Object? corpo]) => _req('POST', rota, corpo ?? {});
+  static Future<dynamic> post(String rota, [Object? corpo, Map<String, String>? cabecalhos]) => _req('POST', rota, corpo ?? {}, cabecalhos);
   static Future<dynamic> put(String rota, Object corpo) => _req('PUT', rota, corpo);
   static Future<dynamic> apagar(String rota, [Object? corpo]) => _req('DELETE', rota, corpo);
 
